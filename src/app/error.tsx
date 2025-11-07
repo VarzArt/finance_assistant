@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
 export default function GlobalError({ error }: { error: unknown }) {
-  console.error(error);
+  console.error(error)
   return (
     <html>
       <body className="flex h-dvh items-center justify-center p-6">
@@ -11,5 +11,5 @@ export default function GlobalError({ error }: { error: unknown }) {
         </div>
       </body>
     </html>
-  );
+  )
 }

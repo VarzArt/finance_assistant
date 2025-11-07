@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum AccountType {
+  REGULAR
+  SAVINGS
+  CREDIT
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionStatus {
+  POSTED
+  PENDING
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  plan      Plan     @default(FREE)
+  timezone  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts     Account[]
+  categories   Category[]
+  transactions Transaction[]
+  attachments  Attachment[]
+  reminders    Reminder[]
+
+  tags Tag[]
+
+  @@index([plan])
+}
+
+model Account {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type     AccountType
+  name     String
+  currency String      @default("RUB")
+
+  balance Decimal? @default(0)
+
+  interestAPR    Decimal?
+  compounding    String?
+  capitalization Boolean? @default(false)
+
+  creditLimit    Decimal?
+  apr            Decimal?
+  statementDay   Int?
+  paymentDueDay  Int?
+  minPaymentPct  Decimal?
+  minPaymentFix  Decimal?
+  autopayEnabled Boolean? @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+
+  reminders Reminder[]
+
+  @@index([userId, type])
+  @@index([userId, name])
+  @@index([userId, currency])
+}
+
+model Category {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name      String
+  type      CategoryType
+  color     String?
+  icon      String?
+  createdAt DateTime     @default(now())
+
+  transactions Transaction[]
+
+  @@unique([userId, name, type])
+  @@index([userId, type])
+}
+
+model Transaction {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accountId String
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  amount     Decimal
+  currency   String
+  occurredAt DateTime
+  status     TransactionStatus @default(POSTED)
+  note       String?
+
+  transferGroupId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attachments Attachment[]
+
+  tags Tag[] @relation("TransactionOnTags")
+
+  @@index([userId, accountId, occurredAt])
+  @@index([categoryId])
+  @@index([transferGroupId])
+  @@index([status])
+}
+
+model Attachment {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transactionId String?
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  url      String
+  mimeType String
+  size     Int
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, transactionId])
+}
+
+model Reminder {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accountId String?
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  title   String
+  message String?
+  dueAt   DateTime
+  isSent  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, dueAt, isSent])
+}
+
+model Tag {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name  String
+  color String?
+
+  transactions Transaction[] @relation("TransactionOnTags")
+
+  @@unique([userId, name])
+}

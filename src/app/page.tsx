@@ -4,5 +4,5 @@ export default function HomePage() {
       <h1 className="text-2xl font-semibold">Hello Next</h1>
       <p className="mt-2 text-neutral-600">Болванка проекта готова.</p>
     </main>
-  );
+  )
 }

@@ -4,5 +4,5 @@ export default function NotFound() {
       <h2 className="text-xl font-semibold">Страница не найдена</h2>
       <p className="text-neutral-600">Проверь адрес и попробуй снова.</p>
     </main>
-  );
+  )
 }

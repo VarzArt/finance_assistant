@@ -8,9 +8,19 @@
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prisma:validate": "prisma validate --schema=./prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema=./prisma/schema.prisma",
+    "prisma:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "prisma:studio": "prisma studio",
+    "format:prisma": "prisma format",
+    "check:prisma": "prisma format --schema=./prisma/schema.prisma && prisma validate --schema=./prisma/schema.prisma",
+    "check:code": "prettier --write . && eslint . && tsc -p tsconfig.json --noEmit",
+    "check": "npm run check:prisma && npm run check:code",
+    "prepare": "husky"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "next": "16.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0"
@@ -29,8 +39,10 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
+    "prisma": "^6.19.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "typescript-eslint": "^8.46.3"
